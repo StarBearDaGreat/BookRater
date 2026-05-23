@@ -156,7 +156,7 @@ BookRater.app = {
       
     } catch (error) {
       console.error("Error in openBookDetails:", error);
-      alert("Error opening book details: " + error.message);
+      // Don't alert - modal is already open, just log the error silently
     }
   },
 
@@ -164,18 +164,21 @@ BookRater.app = {
     const select = document.getElementById('assign-list-select');
     select.innerHTML = '<option value="">(None)</option>';
     
-    // We get lists from both shelves or maybe we should only show lists for current shelf?
-    // Let's just aggregate all lists for simplicity in the UI
-    const wantLists = await BookRater.db.getCustomLists('want_to_read');
-    const readLists = await BookRater.db.getCustomLists('read');
-    const allLists = new Set([...wantLists, ...readLists]);
-    
-    allLists.forEach(listName => {
-      const option = document.createElement('option');
-      option.value = listName;
-      option.textContent = listName;
-      select.appendChild(option);
-    });
+    if (!BookRater.db) return;
+    try {
+      const wantLists = await BookRater.db.getCustomLists('want_to_read');
+      const readLists = await BookRater.db.getCustomLists('read');
+      const allLists = new Set([...wantLists, ...readLists]);
+      
+      allLists.forEach(listName => {
+        const option = document.createElement('option');
+        option.value = listName;
+        option.textContent = listName;
+        select.appendChild(option);
+      });
+    } catch (e) {
+      console.warn('populateListDropdown failed:', e);
+    }
   },
 
   bindModalActions: function() {

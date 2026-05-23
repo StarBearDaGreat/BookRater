@@ -115,16 +115,22 @@ BookRater.shelves = {
   },
 
   checkShelfStatus: async function(ol_id) {
-    const wantToRead = await BookRater.db.getShelfEntries('want_to_read');
-    const read = await BookRater.db.getShelfEntries('read');
-    
-    const inWantToRead = wantToRead.find(e => e.ol_id === ol_id);
-    const inRead = read.find(e => e.ol_id === ol_id);
-    
-    return {
-      want_to_read: !!inWantToRead,
-      read: !!inRead,
-      list_name: inWantToRead?.list_name || inRead?.list_name || null
-    };
+    if (!BookRater.db) return { want_to_read: false, read: false, list_name: null };
+    try {
+      const wantToRead = await BookRater.db.getShelfEntries('want_to_read');
+      const read = await BookRater.db.getShelfEntries('read');
+      
+      const inWantToRead = wantToRead.find(e => e.ol_id === ol_id);
+      const inRead = read.find(e => e.ol_id === ol_id);
+      
+      return {
+        want_to_read: !!inWantToRead,
+        read: !!inRead,
+        list_name: inWantToRead?.list_name || inRead?.list_name || null
+      };
+    } catch (e) {
+      console.warn('checkShelfStatus failed:', e);
+      return { want_to_read: false, read: false, list_name: null };
+    }
   }
 };
