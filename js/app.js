@@ -124,14 +124,24 @@ BookRater.app = {
       document.getElementById('detail-comm-rating').textContent = book.ratings_average ? book.ratings_average : 'N/A';
       document.getElementById('detail-blurb').textContent = book.first_sentence || 'No description available.';
       
-      // Reset shelf buttons
+      // Reset shelf buttons to loading state
       const btnWantToRead = document.getElementById('btn-want-to-read');
       const btnRead = document.getElementById('btn-read');
       btnWantToRead.classList.remove('in-shelf');
       btnRead.classList.remove('in-shelf');
+      btnWantToRead.textContent = 'Loading...';
+      btnRead.textContent = 'Loading...';
+      
+      // Show modal immediately so the user knows the click registered
+      document.getElementById('book-modal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
       
       // Check shelf status
       const status = await BookRater.shelves.checkShelfStatus(book.ol_id);
+      
+      // Update buttons now that we have status
+      btnWantToRead.textContent = 'Want to Read';
+      btnRead.textContent = 'Read';
       if (status.want_to_read) btnWantToRead.classList.add('in-shelf');
       if (status.read) btnRead.classList.add('in-shelf');
       
@@ -144,8 +154,6 @@ BookRater.app = {
       // Load personal rating
       await BookRater.ratings.loadForBook(book.ol_id);
       
-      document.getElementById('book-modal').classList.remove('hidden');
-      document.body.style.overflow = 'hidden'; // Prevent background scrolling
     } catch (error) {
       console.error("Error in openBookDetails:", error);
       alert("Error opening book details: " + error.message);
