@@ -98,7 +98,17 @@ BookRater.app = {
     card.appendChild(title);
     card.appendChild(author);
     
-    card.addEventListener('click', () => this.openBookDetails(book));
+    card.addEventListener('click', () => {
+      try {
+        if (typeof this.openBookDetails !== 'function') {
+          alert('Error: openBookDetails is not a function. "this" is ' + typeof this);
+          return;
+        }
+        this.openBookDetails(book);
+      } catch (e) {
+        alert('Click listener error: ' + e.message);
+      }
+    });
     
     return card;
   },
