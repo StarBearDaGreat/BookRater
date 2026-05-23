@@ -104,37 +104,42 @@ BookRater.app = {
   },
 
   openBookDetails: async function(book) {
-    this.currentBook = book;
-    
-    document.getElementById('detail-cover').src = book.cover_url;
-    document.getElementById('detail-title').textContent = book.title;
-    document.getElementById('detail-author').textContent = book.author_name;
-    document.getElementById('detail-year').textContent = book.first_publish_year;
-    document.getElementById('detail-comm-rating').textContent = book.ratings_average ? book.ratings_average : 'N/A';
-    document.getElementById('detail-blurb').textContent = book.first_sentence || 'No description available.';
-    
-    // Reset shelf buttons
-    const btnWantToRead = document.getElementById('btn-want-to-read');
-    const btnRead = document.getElementById('btn-read');
-    btnWantToRead.classList.remove('in-shelf');
-    btnRead.classList.remove('in-shelf');
-    
-    // Check shelf status
-    const status = await BookRater.shelves.checkShelfStatus(book.ol_id);
-    if (status.want_to_read) btnWantToRead.classList.add('in-shelf');
-    if (status.read) btnRead.classList.add('in-shelf');
-    
-    // Populate list assignment dropdown
-    await this.populateListDropdown();
-    if (status.list_name) {
-      document.getElementById('assign-list-select').value = status.list_name;
+    try {
+      this.currentBook = book;
+      
+      document.getElementById('detail-cover').src = book.cover_url;
+      document.getElementById('detail-title').textContent = book.title;
+      document.getElementById('detail-author').textContent = book.author_name;
+      document.getElementById('detail-year').textContent = book.first_publish_year;
+      document.getElementById('detail-comm-rating').textContent = book.ratings_average ? book.ratings_average : 'N/A';
+      document.getElementById('detail-blurb').textContent = book.first_sentence || 'No description available.';
+      
+      // Reset shelf buttons
+      const btnWantToRead = document.getElementById('btn-want-to-read');
+      const btnRead = document.getElementById('btn-read');
+      btnWantToRead.classList.remove('in-shelf');
+      btnRead.classList.remove('in-shelf');
+      
+      // Check shelf status
+      const status = await BookRater.shelves.checkShelfStatus(book.ol_id);
+      if (status.want_to_read) btnWantToRead.classList.add('in-shelf');
+      if (status.read) btnRead.classList.add('in-shelf');
+      
+      // Populate list assignment dropdown
+      await this.populateListDropdown();
+      if (status.list_name) {
+        document.getElementById('assign-list-select').value = status.list_name;
+      }
+      
+      // Load personal rating
+      await BookRater.ratings.loadForBook(book.ol_id);
+      
+      document.getElementById('book-modal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    } catch (error) {
+      console.error("Error in openBookDetails:", error);
+      alert("Error opening book details: " + error.message);
     }
-    
-    // Load personal rating
-    await BookRater.ratings.loadForBook(book.ol_id);
-    
-    document.getElementById('book-modal').classList.remove('hidden');
-    document.body.style.overflow = 'hidden'; // Prevent background scrolling
   },
 
   populateListDropdown: async function() {
