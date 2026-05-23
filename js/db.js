@@ -1,17 +1,25 @@
+// Firebase config — embedded here so no external config.js dependency
+const _firebaseConfig = {
+  apiKey: "AIzaSyDQPWABa-ZTZVJ15oJYaYHv73fnSHRDSXI",
+  authDomain: "bookrater-97ce3.firebaseapp.com",
+  projectId: "bookrater-97ce3",
+  storageBucket: "bookrater-97ce3.firebasestorage.app",
+  messagingSenderId: "268904793874",
+  appId: "1:268904793874:web:3083d8ce523bc8250955cb",
+  measurementId: "G-FHCP87S0BY"
+};
+
 // Initialize Firebase safely
 let db = null;
 try {
   if (typeof firebase !== 'undefined') {
-    // Check if firebaseConfig is defined before using it
-    if (typeof firebaseConfig !== 'undefined') {
-      // Only initialize if no apps exist to prevent "App already exists" error
-      if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-      }
-      db = firebase.firestore();
-    } else {
-      console.warn("firebaseConfig is not defined. Please check config.js.");
+    if (!firebase.apps.length) {
+      firebase.initializeApp(_firebaseConfig);
     }
+    db = firebase.firestore();
+    console.log("Firestore connected.");
+  } else {
+    console.warn("Firebase SDK not loaded.");
   }
 } catch (e) {
   console.error("Firebase initialization error:", e);
@@ -61,7 +69,7 @@ BookRater.db = {
   saveShelfEntry: async (ol_id, shelfName, listName = null) => {
     if (!db) return;
     try {
-      const entryId = `${ol_id}_${shelfName}`; // One entry per book per primary shelf
+      const entryId = `${ol_id}_${shelfName}`;
       await db.collection('shelf_entries').doc(entryId).set({
         ol_id,
         shelf_name: shelfName,
@@ -83,7 +91,7 @@ BookRater.db = {
     }
   },
 
-  // Custom Lists (derived from distinct list_names in a shelf)
+  // Custom Lists
   getCustomLists: async (shelfName) => {
     if (!db) return [];
     try {
@@ -157,7 +165,6 @@ BookRater.db = {
   getBooksReadCount: async (year) => {
     if (!db) return 0;
     try {
-      // Create start and end dates for the year
       const startDate = new Date(year, 0, 1);
       const endDate = new Date(year, 11, 31, 23, 59, 59, 999);
       

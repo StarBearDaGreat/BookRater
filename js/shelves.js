@@ -99,18 +99,26 @@ BookRater.shelves = {
   },
 
   addToShelf: async function(book, shelfName, listName = null) {
-    await BookRater.db.saveBook(book);
-    
-    // Auto-move logic: if moving to 'read', remove from 'want_to_read'
-    if (shelfName === 'read') {
-      await BookRater.db.deleteShelfEntry(book.ol_id, 'want_to_read');
+    if (!BookRater.db) {
+      console.warn('Firestore not ready — cannot save to shelf.');
+      return;
     }
-    
-    await BookRater.db.saveShelfEntry(book.ol_id, shelfName, listName);
-    
-    // Refresh if currently on shelves view
-    if (BookRater.app.currentView === 'shelves-view') {
-      this.render();
+    try {
+      await BookRater.db.saveBook(book);
+      
+      // Auto-move logic: if moving to 'read', remove from 'want_to_read'
+      if (shelfName === 'read') {
+        await BookRater.db.deleteShelfEntry(book.ol_id, 'want_to_read');
+      }
+      
+      await BookRater.db.saveShelfEntry(book.ol_id, shelfName, listName);
+      
+      // Refresh if currently on shelves view
+      if (BookRater.app.currentView === 'shelves-view') {
+        this.render();
+      }
+    } catch (e) {
+      console.error('addToShelf error:', e);
     }
   },
 
