@@ -1,8 +1,21 @@
-// Initialize Firebase
-if (typeof firebase !== 'undefined') {
-  firebase.initializeApp(firebaseConfig);
+// Initialize Firebase safely
+let db = null;
+try {
+  if (typeof firebase !== 'undefined') {
+    // Check if firebaseConfig is defined before using it
+    if (typeof firebaseConfig !== 'undefined') {
+      // Only initialize if no apps exist to prevent "App already exists" error
+      if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+      }
+      db = firebase.firestore();
+    } else {
+      console.warn("firebaseConfig is not defined. Please check config.js.");
+    }
+  }
+} catch (e) {
+  console.error("Firebase initialization error:", e);
 }
-const db = typeof firebase !== 'undefined' ? firebase.firestore() : null;
 
 BookRater.db = {
   // Books cache
