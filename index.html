@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book Rater</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  
+  <header class="app-header">
+    <h1>📚 Book Rater</h1>
+  </header>
+
+  <nav class="app-nav">
+    <button class="nav-btn active" data-target="search-view">Search</button>
+    <button class="nav-btn" data-target="shelves-view">Shelves</button>
+    <button class="nav-btn" data-target="goals-view">Goal</button>
+  </nav>
+
+  <main class="app-content">
+    
+    <!-- SEARCH VIEW -->
+    <section id="search-view" class="view active">
+      <div class="search-bar">
+        <input type="text" id="search-input" placeholder="Search by title or author...">
+        <button id="search-btn">Search</button>
+      </div>
+      
+      <div class="sort-controls">
+        <label for="sort-select">Sort by:</label>
+        <select id="sort-select">
+          <option value="relevance">Relevance</option>
+          <option value="genre">Genre</option>
+          <option value="popularity">Popularity</option>
+          <option value="release_date">Release Date</option>
+        </select>
+      </div>
+      
+      <div id="search-loading" class="hidden">Searching Open Library...</div>
+      
+      <div id="search-results" class="book-grid">
+        <!-- Search results injected here -->
+      </div>
+    </section>
+
+    <!-- SHELVES VIEW -->
+    <section id="shelves-view" class="view hidden">
+      <div class="shelf-tabs">
+        <button class="shelf-tab active" data-shelf="want_to_read">Want to Read</button>
+        <button class="shelf-tab" data-shelf="read">Read</button>
+      </div>
+      
+      <div class="custom-lists-container">
+        <h3>Sub-lists</h3>
+        <ul id="custom-lists">
+          <!-- Custom lists injected here -->
+        </ul>
+        <div class="add-list-control">
+          <input type="text" id="new-list-input" placeholder="New list name...">
+          <button id="add-list-btn">+</button>
+        </div>
+      </div>
+      
+      <div id="shelf-books" class="book-grid">
+        <!-- Books for current shelf/list injected here -->
+      </div>
+    </section>
+
+    <!-- GOALS VIEW -->
+    <section id="goals-view" class="view hidden">
+      <div class="goal-card">
+        <h2>Yearly Reading Goal</h2>
+        <div class="goal-setup">
+          <label for="goal-input">Set your target for <span id="current-year"></span>:</label>
+          <input type="number" id="goal-input" min="1" placeholder="e.g. 50">
+          <button id="save-goal-btn">Save</button>
+        </div>
+        
+        <div class="goal-progress-display hidden">
+          <div class="progress-text">
+            <span id="books-read-count">0</span> of <span id="goal-target">0</span> books read this year
+          </div>
+          <div class="progress-bar-container">
+            <div class="progress-bar" id="goal-progress-bar"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- BOOK DETAILS MODAL -->
+    <div id="book-modal" class="modal hidden">
+      <div class="modal-content">
+        <button class="close-modal">&times;</button>
+        <div class="book-detail-header">
+          <img id="detail-cover" src="assets/placeholder-cover.png" alt="Book Cover">
+          <div class="book-info">
+            <h2 id="detail-title">Title</h2>
+            <p id="detail-author" class="text-muted">Author</p>
+            <p id="detail-year" class="text-muted">Year</p>
+            <div class="community-rating">
+              ⭐ <span id="detail-comm-rating">N/A</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="book-blurb">
+          <h3>Description</h3>
+          <p id="detail-blurb">No description available.</p>
+        </div>
+        
+        <div class="shelf-actions">
+          <button id="btn-want-to-read" class="shelf-action-btn">Want to Read</button>
+          <button id="btn-read" class="shelf-action-btn">Read</button>
+          
+          <div class="list-assignment">
+            <label for="assign-list-select">Add to sub-list:</label>
+            <select id="assign-list-select">
+              <option value="">(None)</option>
+              <!-- Options populated dynamically based on current shelf -->
+            </select>
+          </div>
+        </div>
+        
+        <div class="personal-rating-section">
+          <h3>My Rating</h3>
+          <div class="star-rating" id="personal-stars">
+            <span data-val="1">☆</span>
+            <span data-val="2">☆</span>
+            <span data-val="3">☆</span>
+            <span data-val="4">☆</span>
+            <span data-val="5">☆</span>
+          </div>
+          <textarea id="personal-comment" placeholder="Add a review comment..."></textarea>
+          <button id="save-rating-btn">Save Rating & Review</button>
+          <div id="rating-save-msg" class="success-msg hidden">Saved!</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Firebase App (the core Firebase SDK) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+  <!-- Firestore -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+  
+  <!-- App Configuration -->
+  <script src="config.js"></script>
+  
+  <!-- Global Namespace Init -->
+  <script>
+    window.BookRater = {};
+  </script>
+  
+  <!-- Modules -->
+  <script src="js/db.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/shelves.js"></script>
+  <script src="js/ratings.js"></script>
+  <script src="js/goals.js"></script>
+  
+  <!-- Main Entry -->
+  <script src="js/app.js"></script>
+</body>
+</html>
