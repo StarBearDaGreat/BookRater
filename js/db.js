@@ -66,16 +66,25 @@ BookRater.db = {
     }
   },
   
-  saveShelfEntry: async (ol_id, shelfName, listName = null) => {
+  saveShelfEntry: async (ol_id, shelfName, listName = null, book = null) => {
     if (!db) return;
     try {
       const entryId = `${ol_id}_${shelfName}`;
-      await db.collection('shelf_entries').doc(entryId).set({
+      const data = {
         ol_id,
         shelf_name: shelfName,
         list_name: listName,
         date_added: firebase.firestore.FieldValue.serverTimestamp()
-      }, { merge: true });
+      };
+      // Embed key book fields so shelves page never needs a separate lookup
+      if (book) {
+        data.title = book.title;
+        data.author_name = book.author_name;
+        data.cover_url = book.cover_url;
+        data.first_publish_year = book.first_publish_year;
+        data.ratings_average = book.ratings_average;
+      }
+      await db.collection('shelf_entries').doc(entryId).set(data, { merge: true });
     } catch (e) {
       console.error("Error saving shelf entry:", e);
     }

@@ -51,9 +51,10 @@ BookRater.shelves = {
 
     container.innerHTML = '';
     
-    // Fetch and render books
+    // Render books using embedded data in the entry (no separate getBook lookup needed)
     for (const entry of filteredEntries) {
-      const book = await BookRater.db.getBook(entry.ol_id);
+      // Use embedded book fields from the shelf entry, or fall back to a Firestore lookup
+      const book = entry.title ? entry : await BookRater.db.getBook(entry.ol_id);
       if (book) {
         const card = BookRater.app.createBookCard(book);
         container.appendChild(card);
@@ -111,7 +112,7 @@ BookRater.shelves = {
         await BookRater.db.deleteShelfEntry(book.ol_id, 'want_to_read');
       }
       
-      await BookRater.db.saveShelfEntry(book.ol_id, shelfName, listName);
+      await BookRater.db.saveShelfEntry(book.ol_id, shelfName, listName, book);
       
       // Refresh if currently on shelves view
       if (BookRater.app.currentView === 'shelves-view') {
